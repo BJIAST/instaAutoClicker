@@ -70,6 +70,7 @@ let app = {
 
 
         this.onWork = true;
+        this.toFollow = 0;
 
         for (let user of follows) {
             if (user.innerHTML == 'Подписаться') {
