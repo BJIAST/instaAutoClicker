@@ -29,7 +29,7 @@ let app = {
 
         let timeoutFunc = setTimeout(() => {
 
-            this.leftToFollow = this.leftToFollow == false ? this.toFollow - 1 : this.leftToFollow - 1;
+            this.leftToFollow = this.leftToFollow === false ? this.toFollow - 1 : this.leftToFollow - 1;
             this.subscribeViewer(currentTimer);
 
             callback();
@@ -170,6 +170,8 @@ let app = {
 
             let list = document.getElementsByClassName('_6xe7A')[0].parentElement;
             list.scrollTop = 99999999;
+
+            this.timeout = 0;
 
             setTimeout(() => {
                 this.clicker();
