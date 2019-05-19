@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.11
+// @version      1.12
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,7 +10,7 @@
 
 
 let app = {
-    version: 1.11,
+    version: 1.12,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
@@ -159,7 +159,7 @@ let app = {
         for (let user of follows) {
             let current = user.parentElement.parentElement.getElementsByClassName('FPmhX notranslate _0imsa')[0].getAttribute('href');
 
-            if (user.innerHTML == 'Подписаться' && current.indexOf(this.followed) === -1) {
+            if (user.innerHTML == 'Подписаться' &&  !this.followed.find((elem) =>  elem === current)) {
 
                 this.toFollow++;
                 this.action(() => user.click(), current);
