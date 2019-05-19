@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.1
+// @version      1.11
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,7 +10,7 @@
 
 
 let app = {
-    version: 1.1,
+    version: 1.11,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
@@ -69,9 +69,15 @@ let app = {
                 }
             }
 
-            this.chromemes(`На данной странице будет пролайкано ${toLike.length} записей, примерно за ${toLike.length * 16} секунд.`);
+          if(itemToLike.length > 0){
+              this.chromemes(`На данной странице будет пролайкано ${toLike.length} записей, примерно за ${toLike.length * 16} секунд.`);
 
-            likeIt(0);
+              likeIt(0);
+          }else {
+              setTimeout(function () {
+                  window.close();
+              },4000)
+          }
         }else {
             setTimeout(function () {
                 window.close();
