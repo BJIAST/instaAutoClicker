@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.12
+// @version      1.13
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,7 +10,7 @@
 
 
 let app = {
-    version: 1.12,
+    version: 1.13,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
@@ -39,7 +39,7 @@ let app = {
 
             localStorage.setItem('followed', JSON.stringify(this.followed));
 
-            if (Math.floor(Math.random() + 0.4)) {
+            if (Math.floor(Math.random() + 1)) {
                 this.getLike(user);
             }
 
@@ -62,14 +62,14 @@ let app = {
 
         if(posts.length > 0){
             for (let i = 0; i < posts.length; i++) {
-                let itemToLike = Math.floor(Math.random() + 0.1);
+                itemToLike = Math.floor(Math.random() + 0.1);
 
                 if (itemToLike) {
                     toLike.push(posts[i].getElementsByTagName('a')[0]);
                 }
             }
 
-          if(itemToLike.length > 0){
+          if(toLike.length > 0){
               this.chromemes(`На данной странице будет пролайкано ${toLike.length} записей, примерно за ${toLike.length * 16} секунд.`);
 
               likeIt(0);
