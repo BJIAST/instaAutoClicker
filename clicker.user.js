@@ -39,7 +39,7 @@ let app = {
 
             localStorage.setItem('followed', JSON.stringify(this.followed));
 
-            if (Math.floor(Math.random() + 1)) {
+            if (Math.floor(Math.random() + 0.4)) {
                 this.getLike(user);
             }
 
