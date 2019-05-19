@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.0
+// @version      1.1
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,18 +10,19 @@
 
 
 let app = {
-    version: 1.0,
+    version: 1.1,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
-    allToFollow: localStorage.getItem('allToFollow') || 0,
     toFollow: 0,
+    followed: JSON.parse(localStorage.getItem('followed')) || [],
     leftToFollow: false,
+    sessionFollowed: 0,
     viewInterval: false,
     onWork: false,
 
 
-    action: function (callback) {
+    action: function (callback, user) {
 
         this.timer = Math.floor(Math.random() * 40) + 20;
         let currentTimer = this.timer - 2;
@@ -34,14 +35,91 @@ let app = {
 
             callback();
 
+            this.followed.push(user);
+
+            localStorage.setItem('followed', JSON.stringify(this.followed));
+
+            if (Math.floor(Math.random() + 0.4)) {
+                this.getLike(user);
+            }
+
+
         }, this.timeout * 1000);
 
         this.timeout += this.timer;
         return timeoutFunc;
     },
 
+    getLike: function (user) {
+        let link = 'https://www.instagram.com' + user + '?=get_action';
+
+        window.open(link);
+    },
+
+    likeWindow: function () {
+        let posts = document.getElementsByClassName('v1Nh3 kIKUG  _bz0w'),
+            toLike = [];
+
+        if(posts.length > 0){
+            for (let i = 0; i < posts.length; i++) {
+                let itemToLike = Math.floor(Math.random() + 0.1);
+
+                if (itemToLike) {
+                    toLike.push(posts[i].getElementsByTagName('a')[0]);
+                }
+            }
+
+            this.chromemes(`На данной странице будет пролайкано ${toLike.length} записей, примерно за ${toLike.length * 16} секунд.`);
+
+            likeIt(0);
+        }else {
+            setTimeout(function () {
+                window.close();
+            },4000)
+        }
+
+
+
+        function likeIt(index) {
+
+            setTimeout(function () {
+                toLike[index].click();
+            }, 5000);
+
+            setTimeout(function () {
+                let like = document.querySelectorAll('[aria-label="Нравится"]');
+
+                like[0].click();
+            }, 12000);
+
+            setTimeout(function () {
+                let closeButton = document.getElementsByClassName('ckWGn')[0];
+
+                closeButton.click();
+            }, 16000);
+
+            setTimeout(function () {
+
+                index++;
+                if(index <= toLike.length - 1) {
+                    likeIt(index);
+                }else{
+                    window.close();
+                }
+
+            }, 18000)
+        }
+    },
+
     init: function () {
-        let nav = document.getElementsByClassName('bqE32')[0]
+
+        if (location.search === '?=get_action') {
+            this.likeWindow();
+
+            return false;
+        }
+
+        let nav = document.getElementsByClassName('bqE32')[0];
         let buttonStart = document.createElement('span');
         buttonStart.classList = "vBF20 _1OSdk";
         buttonStart.style.margin = '0 8px';
@@ -73,20 +151,17 @@ let app = {
         this.toFollow = 0;
 
         for (let user of follows) {
-            if (user.innerHTML == 'Подписаться') {
+            let current = user.parentElement.parentElement.getElementsByClassName('FPmhX notranslate _0imsa')[0].getAttribute('href');
+
+            if (user.innerHTML == 'Подписаться' && current.indexOf(this.followed) === -1) {
+
                 this.toFollow++;
-                this.allToFollow++;
-                this.action(() => user.click());
+                this.action(() => user.click(), current);
             }
         }
 
         timer.style.cssText = "display:flex;padding: 15px;top:0;position: absolute;left: 120%;width: 100%;color: #0937de;flex-direction: column;background: #fff;justify-content: space-around;align-items: center;";
         timer.id = 'timerxrd';
-
-        if (this.allToFollow > 200) {
-            this.subscribeViewer(200);
-            return false;
-        }
 
         if (this.toFollow === 0) {
             this.inProcess(false);
@@ -96,15 +171,10 @@ let app = {
         timer.append(timerZone);
         header.prepend(timer);
 
-        localStorage.setItem('allToFollow', this.allToFollow);
 
-
-        timerZone.id = 'timerzonexrd'
+        timerZone.id = 'timerzonexrd';
         followsCounterView.id = 'followsCounter';
         followsTimeView.id = 'followsTime';
-
-
-      
 
 
         timer.innerText = 'Следующий фолов через: ';
@@ -133,13 +203,8 @@ let app = {
         // followsTimeView = document.getElementById('followsTime');
         seconds = timeout;
 
-        if (this.allToFollow > 200) {
-            timer.innerHTML = '<span style="color: red;"> На сегодня закончим ¯\_(ツ)_/¯</span><br><span>Все пройдено приблизительно '+this.allToFollow+' аккаунтов</span><br><button onclick="localStorage.removeItem(\'allToFollow\'); location.reload();">Сбросить ' + this.title + '</button>';
 
-            return false;
-        }
-
-        followsCounterView.innerHTML = `Найдено <span style="color: #1a0cea">${this.toFollow} (<span style="color: darkred">${this.allToFollow}</span>) </span> аккаунтов <br>
+        followsCounterView.innerHTML = `Найдено <span style="color: #1a0cea">${this.toFollow} </span> аккаунтов <br>
          Осталось: <span style="color: darkgreen">${this.leftToFollow}</span>`;
         followsCounterView.style.cssText = 'color: #000; padding: 10px 0; margin-top: 6px; border-top: 1px solid #cecece';
 
@@ -154,11 +219,11 @@ let app = {
 
             if (seconds < -2) {
                 clearInterval(this.viewInterval);
-                if (this.allToFollow > 200) {
-                    timer.innerHTML = '<span style="color: red;"> На сегодня закончим ¯\_(ツ)_/¯</span>';
-                } else {
-                    this.inProcess(false);
-                }
+                // if (this.allToFollow > 200) {
+                //     timer.innerHTML = '<span style="color: red;"> На сегодня закончим ¯\_(ツ)_/¯</span>';
+                // } else {
+                this.inProcess(false);
+                // }
             }
         }, 1000)
 
@@ -177,8 +242,19 @@ let app = {
                 this.clicker();
             }, 2000)
         }
+    },
+    chromemes: function (mesbody) {
+        var currentPermission;
+        Notification.requestPermission(function (result) {
+            currentPermission = result
+        });
+        mailNotification = new Notification(document.title + this.title, {
+            body: mesbody,
+            icon: document.getElementsByClassName('_6q-tv')[0].getAttribute('src')
+        });
+        setTimeout(mailNotification.close.bind(mailNotification), 5000);
     }
-}
+};
 
 setTimeout(function () {
     app.init();
