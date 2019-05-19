@@ -225,11 +225,9 @@ let app = {
 
             if (seconds < -2) {
                 clearInterval(this.viewInterval);
-                // if (this.allToFollow > 200) {
-                //     timer.innerHTML = '<span style="color: red;"> На сегодня закончим ¯\_(ツ)_/¯</span>';
-                // } else {
+
+                this.leftToFollow = false;
                 this.inProcess(false);
-                // }
             }
         }, 1000)
 
