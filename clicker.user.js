@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.13
+// @version      1.14
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,7 +10,7 @@
 
 
 let app = {
-    version: 1.13,
+    version: 1.14,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
@@ -22,7 +22,7 @@ let app = {
     onWork: false,
 
 
-    action: function (callback, user) {
+    action: function (callback, user, li) {
 
         this.timer = Math.floor(Math.random() * 40) + 20;
         let currentTimer = this.timer - 2;
@@ -38,6 +38,7 @@ let app = {
             this.followed.push(user);
 
             localStorage.setItem('followed', JSON.stringify(this.followed));
+            li.style.cssText = "background: rgba(48, 154, 216, 0.48);";
 
             if (Math.floor(Math.random() + 0.4)) {
                 this.getLike(user);
@@ -139,11 +140,16 @@ let app = {
 
             setTimeout(() => {
                 this.clicker();
-            }, 2000)
+            }, 4000)
         });
     },
 
     clicker: function () {
+        var getClosest = function (el, sel) {
+            while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el,sel)));
+            return el;
+        };
+
         let list = document.getElementsByClassName('_6xe7A')[0],
             follows = list.getElementsByTagName('button'),
             header = document.getElementsByClassName('m82CD')[0],
@@ -157,12 +163,21 @@ let app = {
         this.toFollow = 0;
 
         for (let user of follows) {
-            let current = user.parentElement.parentElement.getElementsByClassName('FPmhX notranslate _0imsa')[0].getAttribute('href');
+            let currentElem = user.parentElement.parentElement.querySelector('.FPmhX.notranslate._0imsa'),
+                current = currentElem.getAttribute('href');
 
-            if (user.innerHTML == 'Подписаться' &&  !this.followed.find((elem) =>  elem === current)) {
+            if(this.followed.find((elem) => elem === current)) {
+                let li = getClosest(currentElem, 'li');
+
+                li.style.cssText = "background: rgba(48, 154, 216, 0.48);"
+            }
+
+            if (user.innerHTML == 'Подписаться' &&  !this.followed.find((elem) => elem === current)) {
+                let li = getClosest(currentElem, 'li');
 
                 this.toFollow++;
-                this.action(() => user.click(), current);
+                this.action(() => user.click(), current , li);
+
             }
         }
 
@@ -244,7 +259,7 @@ let app = {
 
             setTimeout(() => {
                 this.clicker();
-            }, 2000)
+            }, 4000)
         }
     },
     chromemes: function (mesbody) {
