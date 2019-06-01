@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.14
+// @version      1.15
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,7 +10,7 @@
 
 
 let app = {
-    version: 1.14,
+    version: 1.15,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
@@ -20,7 +20,8 @@ let app = {
     sessionFollowed: 0,
     viewInterval: false,
     onWork: false,
-
+    loop: false,
+    followersToLike: 50,
 
     action: function (callback, user, li) {
 
@@ -59,9 +60,10 @@ let app = {
 
     likeWindow: function () {
         let posts = document.getElementsByClassName('v1Nh3 kIKUG  _bz0w'),
+            openedUserFollowers = document.querySelectorAll('.g47SY')[1].innerHTML,
             toLike = [];
 
-        if(posts.length > 0){
+        if (posts.length > 0 && openedUserFollowers > this.followersToLike) {
             for (let i = 0; i < posts.length; i++) {
                 itemToLike = Math.floor(Math.random() + 0.1);
 
@@ -70,21 +72,20 @@ let app = {
                 }
             }
 
-          if(toLike.length > 0){
-              this.chromemes(`На данной странице будет пролайкано ${toLike.length} записей, примерно за ${toLike.length * 16} секунд.`);
+            if (toLike.length > 0) {
+                this.chromemes(`На данной странице будет пролайкано ${toLike.length} записей, примерно за ${toLike.length * 16} секунд.`);
 
-              likeIt(0);
-          }else {
-              setTimeout(function () {
-                  window.close();
-              },4000)
-          }
-        }else {
+                likeIt(0);
+            } else {
+                setTimeout(function () {
+                    window.close();
+                }, 4000)
+            }
+        } else {
             setTimeout(function () {
                 window.close();
-            },4000)
+            }, 4000)
         }
-
 
 
         function likeIt(index) {
@@ -108,9 +109,9 @@ let app = {
             setTimeout(function () {
 
                 index++;
-                if(index <= toLike.length - 1) {
+                if (index <= toLike.length - 1) {
                     likeIt(index);
-                }else{
+                } else {
                     window.close();
                 }
 
@@ -138,15 +139,19 @@ let app = {
             let list = document.getElementsByClassName('-nal3')[1];
             list.click();
 
-            setTimeout(() => {
+            this.ajaxComplete('https://www.instagram.com/graphql/query/', () => {
                 this.clicker();
-            }, 4000)
+            })
+
         });
     },
 
     clicker: function () {
+        this.loop = false;
+
+
         var getClosest = function (el, sel) {
-            while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el,sel)));
+            while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el, sel))) ;
             return el;
         };
 
@@ -166,17 +171,17 @@ let app = {
             let currentElem = user.parentElement.parentElement.querySelector('.FPmhX.notranslate._0imsa'),
                 current = currentElem.getAttribute('href');
 
-            if(this.followed.find((elem) => elem === current)) {
+            if (this.followed.find((elem) => elem === current)) {
                 let li = getClosest(currentElem, 'li');
 
                 li.style.cssText = "background: rgba(48, 154, 216, 0.48);"
             }
 
-            if (user.innerHTML == 'Подписаться' &&  !this.followed.find((elem) => elem === current)) {
+            if (user.innerHTML == 'Подписаться' && !this.followed.find((elem) => elem === current)) {
                 let li = getClosest(currentElem, 'li');
 
                 this.toFollow++;
-                this.action(() => user.click(), current , li);
+                this.action(() => user.click(), current, li);
 
             }
         }
@@ -272,6 +277,19 @@ let app = {
             icon: document.getElementsByClassName('_6q-tv')[0].getAttribute('src')
         });
         setTimeout(mailNotification.close.bind(mailNotification), 5000);
+    },
+    ajaxComplete: function (url, callback) {
+        const send = XMLHttpRequest.prototype.send;
+        const props = this;
+        XMLHttpRequest.prototype.send = function () {
+            this.addEventListener('load', function () {
+                if (this.responseURL.indexOf(url) !== -1 && props.loop === false && props.onWork === false) {
+                   callback();
+                }
+                // add your global handler here
+            });
+            return send.apply(this, arguments)
+        }
     }
 };
 
