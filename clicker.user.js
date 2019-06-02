@@ -140,14 +140,19 @@ let app = {
             list.click();
 
             this.ajaxComplete('https://www.instagram.com/graphql/query/', () => {
-                this.clicker();
+                try {
+                    this.clicker();
+                    this.loop = true;
+                }
+                catch(error) {
+                    console.error(error);
+                }
             })
 
         });
     },
 
     clicker: function () {
-        this.loop = false;
 
 
         var getClosest = function (el, sel) {
