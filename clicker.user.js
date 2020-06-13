@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Auto Clicker
 // @namespace   http://skinsdb.site/
-// @version      1.15
+// @version      1.2
 // @description  try to hard!
 // @author       BJIAST
 // @match       https://www.instagram.com/*
@@ -10,7 +10,7 @@
 
 
 let app = {
-    version: 1.15,
+    version: 1.2,
     title: '| InstAClick',
     timeout: 0,
     timer: 0,
@@ -127,13 +127,13 @@ let app = {
             return false;
         }
 
-        let nav = document.getElementsByClassName('bqE32')[0];
+        let nav = document.getElementsByClassName('BY3EC')[0];
         let buttonStart = document.createElement('span');
         buttonStart.classList = "vBF20 _1OSdk";
         buttonStart.style.margin = '0 8px';
         buttonStart.style.background = 'green';
         buttonStart.innerHTML = '<button class="_5f5mN jIbKX _6VtSN yZn4P " style="background: #4adc1b; border-color: #4adc1b;">Начать ' + this.title + '</button>';
-        nav.append(buttonStart);
+        nav.after(buttonStart);
 
         buttonStart.addEventListener('click', event => {
             let list = document.getElementsByClassName('-nal3')[1];
@@ -272,6 +272,7 @@ let app = {
             }, 4000)
         }
     },
+
     chromemes: function (mesbody) {
         var currentPermission;
         Notification.requestPermission(function (result) {
@@ -283,6 +284,7 @@ let app = {
         });
         setTimeout(mailNotification.close.bind(mailNotification), 5000);
     },
+
     ajaxComplete: function (url, callback) {
         const send = XMLHttpRequest.prototype.send;
         const props = this;
